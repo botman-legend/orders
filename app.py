@@ -24,7 +24,7 @@ if st.button("Login"):
         try:
             with engine.connect() as conn:
                 rows = conn.execute(
-                    sqlalchemy.text("SELECT location, phone, session_start, confirmed, created, image_url FROM orders WHERE hostname = :host"),
+                    sqlalchemy.text("SELECT location, phone, client_email, price, qty, details,created_at,image_url FROM orders WHERE hostname = :host"),
                     {"host": hostname}
                 ).fetchall()
 
