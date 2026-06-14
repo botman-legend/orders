@@ -24,14 +24,14 @@ if st.button("Login"):
         try:
             with engine.connect() as conn:
                 rows = conn.execute(
-                    sqlalchemy.text("SELECT location, phone, client_email, price, qty, details,created_at,image_url FROM orders WHERE hostname = :host"),
+                    sqlalchemy.text("SELECT location, phone, client_email, price, qty, details,created_at,link FROM orders WHERE hostname = :host"),
                     {"host": hostname}
                 ).fetchall()
 
             if rows:
                 st.markdown("### Orders")
 
-                for location, phone, client_email, price,qty,details, created_at, image_url in rows:
+                for location, phone, client_email, price,qty,details, created_at, link in rows:
                     # Make location clickable
                     maps_url = f"https://www.google.com/maps?q={location}"
                     
@@ -44,8 +44,8 @@ if st.button("Login"):
                     st.write(f"**Created:** {created_at}")
 
                     # Display image if available
-                    if image_url:
-                        st.image(image_url, caption="Order Image", use_column_width=True)
+                    if link:
+                        st.image(link, caption="Order Image", use_column_width=True)
 
                     st.markdown("---")  # separator between orders
             else:
