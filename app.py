@@ -24,12 +24,30 @@ if st.button("Login"):
         try:
             with engine.connect() as conn:
                 rows = conn.execute(
-                    sqlalchemy.text("SELECT * FROM orders WHERE hostname = :host"),
+                    sqlalchemy.text("SELECT location, phone, session_start, confirmed, created, image_url FROM orders WHERE hostname = :host"),
                     {"host": hostname}
                 ).fetchall()
 
             if rows:
-                st.dataframe(rows)
+                st.markdown("### Orders")
+
+                for location, phone, client_email, price,qty,details, created_at, image_url in rows:
+                    # Make location clickable
+                    maps_url = f"https://www.google.com/maps?q={location}"
+                    
+                    st.write(f"**Location:** [{location}]({maps_url})")
+                    st.write(f"**Phone:** {phone}")
+                    st.write(f"**client_email:** {client_email}")
+                    st.write(f"**Confirmed:** {price}")
+                    st.write(f"**qty:** {qty}")
+                    st.write(f"**details:** {details}")
+                    st.write(f"**Created:** {created_at}")
+
+                    # Display image if available
+                    if image_url:
+                        st.image(image_url, caption="Order Image", use_column_width=True)
+
+                    st.markdown("---")  # separator between orders
             else:
                 st.info("No orders found for this shop.")
         except Exception as e:
