@@ -1,6 +1,7 @@
 import streamlit as st
 import sqlalchemy
 import pandas as pd
+import urllib.parse
 
 # Database connection string stored in secrets
 db_url = st.secrets["DATABASE_URL"]
@@ -36,20 +37,32 @@ if st.button("Login"):
                 data = []
                 for location, phone, client_email, price, qty, details, created_at, link in rows:
                     maps_url = f"https://www.google.com/maps?q={location}"
-                    # Location clickable + share link
-                    location_html = f'<a href="{maps_url}" target="_blank">{location}</a> | <a href="{maps_url}" target="_blank">Share</a>'
-                    # Image thumbnail (double size = 200px)
                     image_html = f'<img src="{link}" width="200">' if link else ""
 
+                    # Build a shareable message with all row details
+                    share_text = (
+                        f"Location: {location}\n"
+                        f"Phone: {phone}\n"
+                        f"Client Email: {client_email}\n"
+                        f"Price: {price}\n"
+                        f"Qty: {qty}\n"
+                        f"Details: {details}\n"
+                        f"Created: {created_at}\n"
+                        f"Map: {maps_url}"
+                    )
+                    # Encode for URL
+                    share_url = "https://wa.me/?text=" + urllib.parse.quote(share_text)
+
                     data.append({
-                        "Location": location_html,
+                        "Location": f'<a href="{maps_url}" target="_blank">{location}</a>',
                         "Phone": phone,
                         "Client Email": client_email,
                         "Price": price,
                         "Qty": qty,
                         "Details": details,
                         "Created": created_at,
-                        "Image": image_html
+                        "Image": image_html,
+                        "Share": f'<a href="{share_url}" target="_blank">Share</a>'
                     })
 
                 df = pd.DataFrame(data)
