@@ -33,26 +33,28 @@ if st.button("Login"):
                 ).fetchall()
 
             if rows:
-                # Convert rows into a DataFrame with clickable links + thumbnails
                 data = []
                 for location, phone, client_email, price, qty, details, created_at, link in rows:
                     maps_url = f"https://www.google.com/maps?q={location}"
-                    share_url = f"https://www.google.com/maps?q={location}"
+                    # Location clickable + share link
+                    location_html = f'<a href="{maps_url}" target="_blank">{location}</a> | <a href="{maps_url}" target="_blank">Share</a>'
+                    # Image thumbnail (double size = 200px)
+                    image_html = f'<img src="{link}" width="200">' if link else ""
+
                     data.append({
-                        "Location": f"[{location}]({maps_url})  |  [Share]({share_url})",
+                        "Location": location_html,
                         "Phone": phone,
                         "Client Email": client_email,
                         "Price": price,
                         "Qty": qty,
                         "Details": details,
                         "Created": created_at,
-                        # Render image as larger thumbnail (200px wide)
-                        "Image": f'<img src="{link}" width="200">'
+                        "Image": image_html
                     })
 
                 df = pd.DataFrame(data)
 
-                # Display table with clickable links and thumbnails
+                # Render table with HTML enabled so links/images work
                 st.write(df.to_html(escape=False), unsafe_allow_html=True)
 
             else:
