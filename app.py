@@ -37,16 +37,17 @@ if st.button("Login"):
                 data = []
                 for location, phone, client_email, price, qty, details, created_at, link in rows:
                     maps_url = f"https://www.google.com/maps?q={location}"
+                    share_url = f"https://www.google.com/maps?q={location}"
                     data.append({
-                        "Location": f"[{location}]({maps_url})",
+                        "Location": f"[{location}]({maps_url})  |  [Share]({share_url})",
                         "Phone": phone,
                         "Client Email": client_email,
                         "Price": price,
                         "Qty": qty,
                         "Details": details,
                         "Created": created_at,
-                        # Render image as small thumbnail
-                        "Image": f'<img src="{link}" width="100">'
+                        # Render image as larger thumbnail (200px wide)
+                        "Image": f'<img src="{link}" width="200">'
                     })
 
                 df = pd.DataFrame(data)
