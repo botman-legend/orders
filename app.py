@@ -1,5 +1,6 @@
 import streamlit as st
 import sqlalchemy
+import pandas as pd
 
 # Database connection string stored in secrets
 db_url = st.secrets["DATABASE_URL"]
@@ -24,30 +25,33 @@ if st.button("Login"):
         try:
             with engine.connect() as conn:
                 rows = conn.execute(
-                    sqlalchemy.text("SELECT location, phone, client_email, price, qty, details,created_at,link FROM orders WHERE hostname = :host"),
+                    sqlalchemy.text(
+                        "SELECT location, phone, session_start, confirmed, created, image_url "
+                        "FROM orders WHERE hostname = :host"
+                    ),
                     {"host": hostname}
                 ).fetchall()
 
             if rows:
-                st.markdown("### Orders")
+                # Convert rows into a DataFrame with clickable links + small images
+                data = []
+                for loc, phone, session_start, confirmed, created, image_url in rows:
+                    maps_url = f"https://www.google.com/maps?q={loc}"
+                    data.append({
+                        "Location": f"[{loc}]({maps_url})",
+                        "Phone": phone,
+                        "Session Start": session_start,
+                        "Confirmed": confirmed,
+                        "Created": created,
+                        # Render image as small thumbnail using HTML
+                        "Image": f'<img src="{image_url}" width="100">'
+                    })
 
-                for location, phone, client_email, price,qty,details, created_at, link in rows:
-                    # Make location clickable
-                    maps_url = f"https://www.google.com/maps?q={location}"
-                    
-                    st.write(f"**Location:** [{location}]({maps_url})")
-                    st.write(f"**Phone:** {phone}")
-                    st.write(f"**client_email:** {client_email}")
-                    st.write(f"**Confirmed:** {price}")
-                    st.write(f"**qty:** {qty}")
-                    st.write(f"**details:** {details}")
-                    st.write(f"**Created:** {created_at}")
+                df = pd.DataFrame(data)
 
-                    # Display image if available
-                    if link:
-                        st.image(link, caption="Order Image", use_column_width=True)
+                # Display table with clickable links and thumbnails
+                st.write(df.to_html(escape=False), unsafe_allow_html=True)
 
-                    st.markdown("---")  # separator between orders
             else:
                 st.info("No orders found for this shop.")
         except Exception as e:
